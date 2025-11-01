@@ -11,8 +11,8 @@ COPY test_hello_world.py /app/
 RUN pip install flask selenium webdriver-manager
 
 # Install Chrome
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    apt-get update && \
+RUN apt-get update && apt-get install -y wget gnupg && \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     apt-get install -y ./google-chrome-stable_current_amd64.deb && \
     rm google-chrome-stable_current_amd64.deb
 
@@ -20,7 +20,8 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
 ENV CHROME_BIN=/usr/bin/google-chrome
 ENV PATH=$CHROME_BIN:$PATH
 
-# Run Flask app in background and test
-CMD flask run --host=0.0.0.0 --port=5000 & \
-    sleep 5 && \
-    python test_hello_world.py
+# Expose Flask port
+EXPOSE 5000
+
+# Start script that runs both Flask and test
+CMD ["bash", "-c", "flask run --host=0.0.0.0 --port=5000 & sleep 5 && python test_hello_world.py"]
